@@ -42,21 +42,20 @@ public class AlertRabbit {
     }
 
     public static void main(String[] args) {
-        try {
-            Connection connection = connect();
+        try (Connection connection = connect()) {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             JobDataMap jobDataMap = new JobDataMap();
+            jobDataMap.put("connection", connection);
             Properties properties = getProperties();
             String intervalStr = properties.getProperty("rabbit.interval");
             if (intervalStr == null) {
-                throw new RuntimeException("Property 'time.interval' is not set in rabbit.properties.");
+                throw new RuntimeException("Property 'rabbit.interval' is not set in rabbit.properties.");
             }
             int interval = Integer.parseInt(intervalStr);
             SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(interval)
                     .repeatForever();
-            jobDataMap.put("connection", connection);
             JobDetail job = newJob(Rabbit.class)
                     .usingJobData(jobDataMap)
                     .build();
@@ -66,7 +65,7 @@ public class AlertRabbit {
                     .build();
             scheduler.scheduleJob(job, trigger);
             Thread.sleep(10000);
-            scheduler.shutdown();
+            scheduler.shutdown(true);
         } catch (SchedulerException se) {
             se.printStackTrace();
         } catch (SQLException | InterruptedException | IOException e) {
@@ -79,28 +78,13 @@ public class AlertRabbit {
         public void execute(JobExecutionContext context) {
             LocalDateTime currentTime = LocalDateTime.now();
             String sql = "INSERT INTO rabbit (created_date) VALUES (?)";
-            Connection connection = null;
-            try {
-                Properties dbProps = (Properties) context.getJobDetail().getJobDataMap().get("dbProps");
-                String url = dbProps.getProperty("jdbc.url");
-                String user = dbProps.getProperty("jdbc.username");
-                String password = dbProps.getProperty("jdbc.password");
-                connection = DriverManager.getConnection(url, user, password);
-                try (PreparedStatement ps = connection.prepareStatement(sql)) {
-                    ps.setObject(1, currentTime);
-                    ps.executeUpdate();
-                    System.out.println("Timestamp inserted successfully: " + currentTime);
-                }
+            Connection connection = (Connection) context.getJobDetail().getJobDataMap().get("connection");
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setObject(1, currentTime);
+                ps.executeUpdate();
+                System.out.println("Timestamp inserted successfully: " + currentTime);
             } catch (SQLException e) {
                 e.printStackTrace();
-            } finally {
-                if (connection != null) {
-                    try {
-                        connection.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
         }
     }
