@@ -15,6 +15,13 @@ public class HabrCareerParse {
     public static final String SUFFIX = "&q=Java%20developer&type=all";
     public static final int NUMBER_OF_PAGES = 5;
 
+    private String retrieveDescription(String link) throws IOException {
+        Connection connection = Jsoup.connect(link);
+        Document document = connection.get();
+        Elements description = document.select(".vacancy-description__text");
+        return description.text();
+    }
+
     public static void main(String[] args) throws IOException {
         for (int i = 1; i <= NUMBER_OF_PAGES; i++) {
             String fullLink = "%s%s%d%s".formatted(SOURCE_LINK, PREFIX, i, SUFFIX);
