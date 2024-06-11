@@ -7,8 +7,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.List;
 
-public class HabrCareerParse {
+public class HabrCareerParse implements Parse {
 
     private static final String SOURCE_LINK = "https://career.habr.com";
     public static final String PREFIX = "/vacancies?page=";
@@ -38,5 +39,10 @@ public class HabrCareerParse {
                 System.out.printf("%s %s %s%n", vacancyName, link, date);
             });
         }
+    }
+
+    @Override
+    public List<Post> list(String link) {
+        return List.of();
     }
 }
