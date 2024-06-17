@@ -11,6 +11,13 @@ public class Post {
     private String description;
     private LocalDateTime created;
 
+    public Post(String vacancyName, String link, String description, LocalDateTime parse) {
+        this.title = vacancyName;
+        this.link = link;
+        this.description = description;
+        this.created = parse;
+    }
+
     public int getId() {
         return id;
     }
