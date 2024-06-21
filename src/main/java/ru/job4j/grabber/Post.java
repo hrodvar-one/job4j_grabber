@@ -18,6 +18,11 @@ public class Post {
         this.created = parse;
     }
 
+    public Post(int id, String title, String link, String description, LocalDateTime created) {
+        this(title, link, description, created);
+        this.id = id;
+    }
+
     public int getId() {
         return id;
     }
