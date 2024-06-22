@@ -27,6 +27,16 @@ public class PsqlStore implements Store {
         );
     }
 
+    private Post getPost(ResultSet resultSet) throws SQLException {
+        return new Post(
+                resultSet.getInt("id"),
+                resultSet.getString("name"),
+                resultSet.getString("link"),
+                resultSet.getString("text"),
+                resultSet.getTimestamp("created").toLocalDateTime()
+        );
+    }
+
     @Override
     public void save(Post post) {
         String sql = "INSERT INTO POST(name, text, link, created) "
@@ -50,12 +60,7 @@ public class PsqlStore implements Store {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String title = resultSet.getString("name");
-                String description = resultSet.getString("text");
-                String link = resultSet.getString("link");
-                LocalDateTime created = resultSet.getTimestamp("created").toLocalDateTime();
-                posts.add(new Post(id, title, description, link, created));
+                posts.add(getPost(resultSet));
             }
             return posts;
         } catch (SQLException e) {
@@ -71,12 +76,7 @@ public class PsqlStore implements Store {
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                post = new Post(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("text"),
-                        resultSet.getString("link"),
-                        resultSet.getTimestamp("created").toLocalDateTime());
+                post = getPost(resultSet);
             }
 
         } catch (SQLException e) {

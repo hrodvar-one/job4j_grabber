@@ -12,7 +12,7 @@ class HabrCareerDateTimeParserTest {
     @Test
     void whenParseValidDateTimeThenReturnLocalDateTime() {
         HabrCareerDateTimeParser parser = new HabrCareerDateTimeParser();
-        String dateTimeString = "2024-06-10T14:30:00";
+        String dateTimeString = "2024-06-10T14:30:00+03:00";
         LocalDateTime expectedDateTime = LocalDateTime.of(2024, 6, 10, 14, 30, 0);
 
         LocalDateTime result = parser.parse(dateTimeString);
@@ -33,7 +33,7 @@ class HabrCareerDateTimeParserTest {
     @Test
     void whenParseAnotherValidDateTimeThenReturnLocalDateTime() {
         HabrCareerDateTimeParser parser = new HabrCareerDateTimeParser();
-        String dateTimeString = "2022-01-01T00:00:00";
+        String dateTimeString = "2022-01-01T00:00:00+00:00";
         LocalDateTime expectedDateTime = LocalDateTime.of(2022, 1, 1, 0, 0, 0);
 
         LocalDateTime result = parser.parse(dateTimeString);
